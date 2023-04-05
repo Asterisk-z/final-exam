@@ -33,6 +33,9 @@ jobs:
             echo $(pwd)
             cd webapp
             echo $(pwd)
+            ls
+            
+
 
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
