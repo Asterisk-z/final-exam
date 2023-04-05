@@ -18,21 +18,21 @@ jobs:
           name: "Say hello"
           command: "echo Hello, World!"
 
-    build_docker_image:
-      docker:
-        - image: circleci/node:12
-      steps:
-        - checkout
-        - setup_remote_docker:
-            docker_layer_caching: false
-        - run:
-            name: Build WebApp Docker image
-            command: |
-              export TAG=0.2.<< pipeline.number >>
-              export IMAGE_NAME=$CIRCLE_PROJECT_REPONAME            
-              echo $(pwd)
-              cd webapp
-              echo $(pwd)
+  build_webapp_docker_image:
+    docker:
+      - image: circleci/node:12
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - run:
+          name: Build WebApp Docker image
+          command: |
+            export TAG=0.2.<< pipeline.number >>
+            export IMAGE_NAME=$CIRCLE_PROJECT_REPONAME            
+            echo $(pwd)
+            cd webapp
+            echo $(pwd)
 
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
