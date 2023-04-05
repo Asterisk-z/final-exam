@@ -34,7 +34,7 @@ jobs:
             cd webapp
             echo $(pwd)
             ls
-            docker build -t $DOCKER_LOGIN/$IMAGE_NAME -t $DOCKER_LOGIN/$IMAGE_NAME:$TAG .
+            docker build -t $DOCKER_LOGIN/$IMAGE_NAME:$TAG .
 
 
 # Orchestrate jobs using workflows
