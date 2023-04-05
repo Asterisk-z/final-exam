@@ -39,7 +39,7 @@ jobs:
             docker build -t $DOCKERHUB_USERNAME/$IMAGE_NAME:$TAGNAME .
             echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
             docker tag $TAGNAME $DOCKERHUB_USERNAME/$IMAGE_NAME:$TAGNAME
-            docker push $DOCKERHUB_USERNAME/$IMAGE_NAME
+            docker push $DOCKERHUB_USERNAME/$IMAGE_NAME:$TAGNAME
 
 
 # Orchestrate jobs using workflows
