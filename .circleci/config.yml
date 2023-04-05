@@ -40,3 +40,4 @@ workflows:
   say-hello-workflow:
     jobs:
       - say-hello
+      - build_webapp_docker_image
