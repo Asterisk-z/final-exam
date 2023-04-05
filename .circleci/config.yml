@@ -39,7 +39,21 @@ jobs:
             docker build -t $DOCKERHUB_USERNAME/$IMAGE_NAME:$TAGNAME .
             echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
             docker push $DOCKERHUB_USERNAME/$IMAGE_NAME:$TAGNAME
-
+  
+  create_infrastructure:
+    docker:
+      - image: zenika/terraform-aws-cli:release-6.0_terraform-0.15.5_awscli-1.27.60
+    steps:
+      - checkout
+      - run:
+          name: Create infrastructure for portfolio and sockshop
+          command: |
+            aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+            aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+            cd iac/
+            terraform init
+            terraform plan
+            terraform apply --auto-approve
 
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
@@ -48,3 +62,5 @@ workflows:
     jobs:
       - say-hello
       - build_webapp_docker_image
+      - create_infrastructure:
+          requires: [build_webapp_docker_image]
