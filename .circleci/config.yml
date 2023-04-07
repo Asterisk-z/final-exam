@@ -151,14 +151,4 @@ workflows:
     jobs:
       - say-hello
       - build_webapp_docker_image
-      - create_infrastructure:
-          requires: [build_webapp_docker_image]
-      - deploy_applications:
-          requires: [create_infrastructure]
-      - add_monitoring:
-          requires: [deploy_applications]
-      - destroy_everything:
-          requires: [deploy_applications]
-          filters:
-            branches:
-              only: [destroy]
+      - destroy_everything
