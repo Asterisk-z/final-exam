@@ -43,9 +43,6 @@ resource "aws_dynamodb_table" "terraform-state-lock" {
   }
 }
 
-
-# Kubernetes provider configuration
-
 provider "kubernetes" {
   host = aws_eks_cluster.eks-cluster.endpoint
   cluster_ca_certificate = base64decode(aws_eks_cluster.eks-cluster.certificate_authority[0].data)
@@ -57,8 +54,6 @@ provider "kubernetes" {
   }
 }
 
-# Kubectl provider configuration
-
 provider "kubectl" {
   host                   = aws_eks_cluster.eks-cluster.endpoint
   cluster_ca_certificate = base64decode(aws_eks_cluster.eks-cluster.certificate_authority[0].data)
@@ -69,15 +64,10 @@ provider "kubectl" {
   }
 }
 
-#--------------CLUSTER---------
-# CloudWatch Log group for EKS cluster
-
 resource "aws_cloudwatch_log_group" "eks5-cluster-logs" {
   name = "/aws/eks/eks5-cluster/cluster"
   retention_in_days = 7
 }
-
-# Create EKS Cluster
 
 resource "aws_eks_cluster" "eks-cluster" {
   name     = "eks-cluster"
@@ -96,8 +86,6 @@ resource "aws_eks_cluster" "eks-cluster" {
 
   enabled_cluster_log_types = ["api", "audit"]
 }
-
-# Create EKS Cluster node group
 
 resource "aws_eks_node_group" "eks-node-group" {
   cluster_name    = aws_eks_cluster.eks-cluster.name
@@ -127,11 +115,6 @@ output "kubeconfig-certificate-authority-data" {
   value = aws_eks_cluster.eks-cluster.certificate_authority[0].data
 }
 
-
-#----------EKS NETWORKING--------
-
-# Create VPC
-
 resource "aws_vpc" "vpc" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
@@ -141,16 +124,12 @@ resource "aws_vpc" "vpc" {
   }
 }
 
-# Create Internet Gateway
-
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.vpc.id
   tags = {
     Name = "eks-igw"
   }
 }
-
-# Create an Elastic IP for NAT Gateway 1
 
 resource "aws_eip" "eip1" {
   vpc        = true
@@ -160,8 +139,6 @@ resource "aws_eip" "eip1" {
   }
 }
 
-# Create an Elastic IP for NAT Gateway 2
-
 resource "aws_eip" "eip2" {
   vpc        = true
   depends_on = [aws_internet_gateway.igw]
@@ -169,8 +146,6 @@ resource "aws_eip" "eip2" {
     Name = "eks-eip2"
   }
 }
-
-# Create NAT Gateway 1
 
 resource "aws_nat_gateway" "nat-gatw1" {
   allocation_id = aws_eip.eip1.id
@@ -182,8 +157,6 @@ resource "aws_nat_gateway" "nat-gatw1" {
   depends_on = [aws_internet_gateway.igw]
 }
 
-# Create a NAT Gateway 2
-
 resource "aws_nat_gateway" "nat-gatw2" {
   allocation_id = aws_eip.eip2.id
   subnet_id     = aws_subnet.pub-sub2.id
@@ -193,8 +166,6 @@ resource "aws_nat_gateway" "nat-gatw2" {
   }
   depends_on = [aws_internet_gateway.igw]
 }
-
-# Create public Route Table
 
 resource "aws_route_table" "pub-rt" {
   vpc_id = aws_vpc.vpc.id
@@ -209,8 +180,6 @@ resource "aws_route_table" "pub-rt" {
   }
 }
 
-# Create Route Table for private sub 1
-
 resource "aws_route_table" "priv-rt1" {
   vpc_id = aws_vpc.vpc.id
 
@@ -223,8 +192,6 @@ resource "aws_route_table" "priv-rt1" {
     Name = "eks-priv-rt1"
   }
 }
-
-# Create Route Table for private sub 2
 
 resource "aws_route_table" "priv-rt2" {
   vpc_id = aws_vpc.vpc.id
@@ -239,35 +206,25 @@ resource "aws_route_table" "priv-rt2" {
   }
 }
 
-# Associate public subnet 1 with public route table
-
 resource "aws_route_table_association" "pub-sub1-association" {
   subnet_id      = aws_subnet.pub-sub1.id
   route_table_id = aws_route_table.pub-rt.id
 }
-
-# Associate public subnet 2 with public route table
 
 resource "aws_route_table_association" "pub-sub2-association" {
   subnet_id      = aws_subnet.pub-sub2.id
   route_table_id = aws_route_table.pub-rt.id
 }
 
-# Associate private subnet 1 with private route table 1
-
 resource "aws_route_table_association" "priv-sub1-association" {
   subnet_id      = aws_subnet.priv-sub1.id
   route_table_id = aws_route_table.priv-rt1.id
 }
 
-# Associate private subnet 2 with private route table 2
-
 resource "aws_route_table_association" "priv-sub2-association" {
   subnet_id      = aws_subnet.priv-sub2.id
   route_table_id = aws_route_table.priv-rt2.id
 }
-
-# Create Public Subnet-1
 
 resource "aws_subnet" "pub-sub1" {
   vpc_id                  = aws_vpc.vpc.id
@@ -279,8 +236,6 @@ resource "aws_subnet" "pub-sub1" {
   }
 }
 
-# Create Public Subnet-2
-
 resource "aws_subnet" "pub-sub2" {
   vpc_id                  = aws_vpc.vpc.id
   cidr_block              = "10.0.2.0/24"
@@ -290,8 +245,6 @@ resource "aws_subnet" "pub-sub2" {
     Name = "eks-pub-sub2"
   }
 }
-
-# Create Private Subnet-1
 
 resource "aws_subnet" "priv-sub1" {
   vpc_id                  = aws_vpc.vpc.id
@@ -303,8 +256,6 @@ resource "aws_subnet" "priv-sub1" {
   }
 }
 
-# Create Private Subnet-2
-
 resource "aws_subnet" "priv-sub2" {
   vpc_id                  = aws_vpc.vpc.id
   cidr_block              = "10.0.5.0/24"
@@ -314,8 +265,6 @@ resource "aws_subnet" "priv-sub2" {
     Name = "eks-priv-sub2"
   }
 }
-
-# Create a security group for the EKS cluster
 
 resource "aws_security_group" "eks-security-group" {
   name_prefix = "eks-security-group"
@@ -337,10 +286,6 @@ resource "aws_security_group" "eks-security-group" {
   }
 }
 
-#=-------Roles --------
-
-# Create IAM role for eks nodes
-
 resource "aws_iam_role" "eks-nodes-role" {
   name = "eks-nodes-role"
 
@@ -360,8 +305,6 @@ resource "aws_iam_role" "eks-nodes-role" {
 POLICY
 }
 
-# Attach required policies to eks node role
-
 resource "aws_iam_role_policy_attachment" "eks-node-AmazonEKSWorkerNodePolicy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
   role       = aws_iam_role.eks-nodes-role.name
@@ -376,8 +319,6 @@ resource "aws_iam_role_policy_attachment" "eks-node-AmazonEC2ContainerRegistryRe
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
   role       = aws_iam_role.eks-nodes-role.name
 }
-
-# Create IAM role for eks cluster
 
 resource "aws_iam_role" "eks-cluster-role" {
   name = "eks-cluster-role"
@@ -397,8 +338,6 @@ resource "aws_iam_role" "eks-cluster-role" {
 }
 POLICY
 }
-
-# Attach required policies to eks cluster role
 
 resource "aws_iam_role_policy_attachment" "eks-cluster-AmazonEKSClusterPolicy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
