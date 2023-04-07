@@ -51,8 +51,8 @@ jobs:
             aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
             aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
             cd iac/
-            terraform init
             terraform destroy --auto-approve
+            terraform init
             terraform plan
             terraform apply --auto-approve
 
@@ -72,8 +72,8 @@ jobs:
             aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
             aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
             cd iac/deploy/
-            terraform init
             terraform destroy --auto-approve
+            terraform init
             terraform plan -var $DOCKER_IMAGE -var $MYSQL_PASSWORD -out=plan.txt
             terraform apply plan.txt
             exit 0
@@ -87,8 +87,8 @@ jobs:
             aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
             aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
             cd iac/deploy/
-            terraform init
             terraform destroy --auto-approve
+            terraform init
             terraform plan -var $DOCKER_IMAGE -var $MYSQL_PASSWORD -out=plan.txt
             terraform apply plan.txt
   
@@ -103,8 +103,8 @@ jobs:
             aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
             aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
             cd iac/monitoring/
-            terraform init
             terraform destroy --auto-approve
+            terraform init
             terraform plan
             terraform apply --auto-approve
             exit 0
@@ -114,8 +114,8 @@ jobs:
             aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
             aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
             cd iac/monitoring/
-            terraform init
             terraform destroy --auto-approve
+            terraform init
             terraform plan
             terraform apply --auto-approve
 
