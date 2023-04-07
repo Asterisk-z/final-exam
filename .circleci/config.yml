@@ -53,7 +53,7 @@ jobs:
             cd iac/
             terraform init
             terraform plan
-            terraform destroy --auto-approve
+            terraform apply --auto-approve
 
   deploy_applications:
     docker:
@@ -73,7 +73,7 @@ jobs:
             cd iac/deploy/
             terraform init
             terraform plan -var $DOCKER_IMAGE -var $MYSQL_PASSWORD -out=plan.txt
-            terraform destroy plan.txt
+            terraform apply plan.txt
             exit 0
       - run:
           name: Rerun deployment because it usually fails the first 
@@ -87,7 +87,7 @@ jobs:
             cd iac/deploy/
             terraform init
             terraform plan -var $DOCKER_IMAGE -var $MYSQL_PASSWORD -out=plan.txt
-            terraform destroy 
+            terraform apply plan.txt
   
   add_monitoring:
     docker:
@@ -102,7 +102,7 @@ jobs:
             cd iac/monitoring/
             terraform init
             terraform plan
-            terraform destroy --auto-approve
+            terraform apply --auto-approve
             exit 0
       - run:
           name: Rerun the deployment of prometheus and grafana if it fails
@@ -110,10 +110,9 @@ jobs:
             aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
             aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
             cd iac/monitoring/
-            terraform destroy --auto-approve
             terraform init
             terraform plan
-            terraform destroy --auto-approve
+            terraform apply --auto-approve
 
   destroy_everything:
     docker:
@@ -158,4 +157,5 @@ workflows:
           requires: [create_infrastructure]
       - add_monitoring:
           requires: [deploy_applications]
-#       - destroy_everything
+      - destroy_everything:
+          requires: [deploy_applications]
