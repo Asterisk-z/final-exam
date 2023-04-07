@@ -87,7 +87,7 @@ jobs:
             cd iac/deploy/
             terraform init
             terraform plan -var $DOCKER_IMAGE -var $MYSQL_PASSWORD -out=plan.txt
-            terraform destroy plan.txt
+            terraform destroy 
   
   add_monitoring:
     docker:
